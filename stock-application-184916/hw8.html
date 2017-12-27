@@ -1,0 +1,2093 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Access-Control-Allow-Origin" content="*">
+	<title>Homework 8</title>
+  <link rel="stylesheet" type="text/css" href="hw8.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css">
+  <!-- bootstrap angular toggle -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script> -->
+  <!-- jQuery -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/jquery-ui-git.css">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  <!-- moment js -->
+  <script src="moment.js"></script>
+  <script src="moment-timezone-with-data.js"></script>
+  <!-- high charts -->
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script src="https://code.highcharts.com/stock/highstock.js"></script>
+  <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+  <script src="http://code.highcharts.com/modules/exporting.js"></script>
+  <!-- angular JS -->
+  <link rel = "stylesheet" href = "https://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.css">
+  <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+  <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
+  <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-aria.min.js"></script>
+  <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-messages.min.js"></script>
+  <script src = "https://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.js"></script>
+  
+</head>
+
+<body ng-app="firstApplication" style="background-image: url('http://cs-server.usc.edu:45678/hw/hw8/images/background.png');">
+  <!-- Facebook SDK -->
+  <script>
+    window.fbAsyncInit = function() {
+      FB.init({
+        appId      : '175287346385841',
+        xfbml      : true,
+        version    : 'v2.11'
+      });
+    };
+
+    (function(d, s, id){
+       var js, fjs = d.getElementsByTagName(s)[0];
+       if (d.getElementById(id)) {return;}
+       js = d.createElement(s); js.id = id;
+       js.src = "https://connect.facebook.net/en_US/sdk.js";
+       fjs.parentNode.insertBefore(js, fjs);
+     }(document, 'script', 'facebook-jssdk'));
+  </script>
+
+  <link href="https://ziscloud.github.io/angular-bootstrap-toggle/css/angular-bootstrap-toggle.min.css" rel="stylesheet">          
+  <script src="https://ziscloud.github.io/angular-bootstrap-toggle/js/angular-bootstrap-toggle.min.js"></script>
+  
+  <div class="container align-center">
+    <div class="card" style="border-radius: 10px;">
+      <div style="padding:10px 15px 25px 15px;">
+        <div class="row">
+          <div class ="col-sm-12">
+            <h3>Stock Market Search</h3>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-3">
+            <label for="symbolInput" class="col-form-label mobile-align-left">Enter Stock Ticker Symbol: <span id="starSign">&ast;</span></label>
+          </div>
+          <div class="col-sm-6">       
+            <!-- <input type="text" class="form-control mobile-align-left" placeholder="e.g. AAPL"> -->
+            <div ng-controller = "autoCompleteController as ctrl" layout = "column">
+              <md-content id="md-content" class = "form-control md-padding mobile-align-left" style = "padding: 0; overflow: hidden;">
+                <form ng-submit = "$event.preventDefault()">
+                  <md-autocomplete
+                    ng-disabled = "ctrl.isDisabled"
+                    md-no-cache = "ctrl.noCache"
+                    md-selected-item = "ctrl.selectedItem"
+                    md-search-text-change = "ctrl.searchTextChange(ctrl.searchText)"
+                    md-search-text = "ctrl.searchText"
+                    md-selected-item-change = "ctrl.selectedItemChange(item)"
+                    md-items = "item in ctrl.querySearch(ctrl.searchText)"
+                    md-item-text = "item.display"
+                    md-min-length = "0"
+                    md-input-id = "symbolInput"
+                    placeholder = "e.g.AAPL">
+                    
+                    <md-item-template>
+                       <span md-highlight-text = "ctrl.searchText"
+                          md-highlight-flags = "^i">{{item.display}}</span>
+                    </md-item-template>
+                    
+                    <md-not-found>
+                       No stocks matching "{{ctrl.searchText}}" were found.
+                       <a ng-click = "ctrl.newStock(ctrl.searchText)">Create a new one!</a>
+                    </md-not-found>
+                  </md-autocomplete>
+                  <br/>       
+                </form>
+               </md-content>
+            </div>
+            <div><p class="align-left" id="errorMessage"></p></div> 
+          </div>
+          <div class="col-sm-3 mobile-align-left">
+            <button class="btn btn-primary" id="getQuoteLink" onclick="getQuote()" disabled><span class="glyphicon glyphicon-search"></span> Get Quote</button>
+            <button type="button" id="clearBtn" class="btn btn-default gray-gradient"><span class="glyphicon glyphicon-refresh"></span> Clear</button>
+          </div>
+        </div>
+      </div>   
+    </div>
+
+    <hr>
+
+    <div id="carouselList" class="carousel slide partial-width" data-interval="false">
+      <div class="carousel-inner">
+        <!-- favorite list item -->
+        <div class="item active">
+          <div class="card">
+            <!-- favorite list header -->
+            <div class="card-header gray-gradient no-bottom" style="padding: 5px;">
+              <!-- first row  -->
+              <div class="row" style="margin: 4px 0px 0px;">
+                <span class="col-lg-2 col-4">
+                  <label class="control-label align-left">Favorite List</label>
+                </span>
+                <span class="col-lg-10 col-7 align-right">
+                  <span class="hide-mobile">Automatic Refresh:</span>
+                  <span ng-controller = "toggleController">
+                    <!-- <input id="autoRefreshToggle" type="checkbox" data-toggle="toggle" onChange="toggleAutoRefresh()"> -->
+                    <toggle ng-model="toggleValue" ng-change="changed()" id="autoRefreshToggle"></toggle>
+                  </span>
+                  <button id="manualRefreshBtn" type="button" class="btn btn-default gray-gradient" onClick="updateFavorite()"><span class="glyphicon glyphicon-refresh"></span>
+                  </button>
+                  <button id="nextBtn" type="button" class="btn btn-default gray-gradient" href="#carouselList" data-slide="next" disabled><span class="glyphicon glyphicon-chevron-right"></span>
+                  </button>
+                </span>
+              </div>
+            </div>
+            <!-- favorite list body -->
+            <div class="card-body" style="padding: 0;">
+              <!-- second row -->
+              <div class="row" style="margin: 4px 0px;">
+                <div class="col-lg-2 align-left">
+                  <label for="sortBySelect" class="col-form-label mobile-align-left">Sort by</label>
+                </div>
+                <div class="col-lg-2">
+                  <select class="custom-select align-left" id="sortBySelect" onchange="sortBySelect()" style="padding: 0 10px 0 5px">
+                    <option selected>Default</option>
+                    <option>Symbol</option>
+                    <option>Price</option>
+                    <option>Change</option>
+                    <option>Change Percent</option>
+                    <option>Volume</option>
+                  </select>
+                </div>
+                <div class="col-lg-2">
+                  <label for="orderSelect" class="col-form-label mobile-align-left">Order</label>
+                </div>
+                <div class="col-lg-2">
+                  <select class="custom-select align-left" id="orderSelect" onchange="orderSelect()" style="padding: 0 30px 0 5px" disabled>
+                    <option selected>Ascending</option>
+                    <option>Descending</option>
+                  </select>
+                </div>
+              </div>
+              <div style="overflow: scroll;">
+                <table class="table table-striped align-left no-bottom" id='favoriteTable' style="width: 96%; margin: 2%;">
+                  <tr>
+                    <th scope="row">Symbol</th>
+                    <th>Stock Price</th>
+                    <th>Change(Change Percent)</th>
+                    <th>Volume</th>
+                    <th></th>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- stock details item -->
+        <div class="item">
+          <div class="item">
+          <div class="card">
+            <!-- card header -->
+            <div class="card-header gray-gradient no-bottom" style="padding: 5px;">
+              <div class="row" style="margin: 2px 0px 2px 0;">
+                <div class="col-2 align-left">
+                  <button type="button" id="prevBtn" class="btn btn-default gray-gradient" href="#carouselList" data-slide="prev"><span class="glyphicon glyphicon-chevron-left"></span></button>
+                </div>
+                <div class="col-8">
+                  <label class="control-label align-center">Stock Details</label>
+                </div>
+              </div>
+            </div>
+            <!-- card body -->
+            <div class="card-body" style="margin: 8px;">
+              <ul class="nav nav-pills">
+                <li class="nav-item">
+                  <a id="currentStockLink" class="nav-link active"><span class="glyphicon glyphicon-dashboard"></span> <span class="hide-mobile">Current </span>Stock</a>
+                </li>
+                <li class="nav-item">
+                  <a id="historicalChartsLink" class="nav-link"><span class="glyphicon glyphicon-stats"></span> <span class="hide-mobile">Historical </span>Charts</a>
+                </li>
+                <li class="nav-item">
+                  <a id="newsFeedLink" class="nav-link"><span class="glyphicon glyphicon-link"></span> News<span class="hide-mobile"> Feeds</span></a>
+                </li>
+              </ul>
+              <hr>
+              <!-- current stock div -->
+              <div id="currentStockDiv" class="row">
+                <!-- stock details div-->
+                <div class="col-sm-6">
+                  <div>
+                    <span class="align-left" style="margin-left: 15px">
+                        <b>Stock Details</b>
+                    </span>
+                    <span class="align-right" style="margin: 0 15px 10px 0">
+                      <button id="starBtn" type="button" class="btn btn-default gray-gradient" disabled><span class='glyphicon glyphicon-star-empty'></span></button>
+                      <button id ="facebookBtn" type="button" class="btn btn-default gray-gradient" disabled><span><img src="http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png" id="facebookImg"></span></button>
+                    </span>
+                  </div>
+                  <br style="clear: both;"/>
+                  <!-- progress bar -->
+                  <div id="stockTableProgress" class="progress" style="margin-top: 70px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 50%"></div>
+                  </div>
+                  <!-- Error bar -->
+                  <div id="stockTableErrorDiv" style="margin-top: 70px;">
+                    <div id="stockTableError" style="color: #9D696B; background-color: #EBCFCD; height: 50px; border-radius: 4px; padding: 15px 15px; text-align: left;"><b>Error! Failed to get current stock data.</b></div>
+                  </div>
+                  <!-- stock detail table -->
+                  <div id="stockDetailTable">
+                    <table class="table table-striped align-left"">
+                      <tr>
+                        <th>Stocker Ticker Symbol</th>
+                        <td id="stockName"></td>
+                      </tr>
+                      <tr>
+                        <th>Last Price</th>
+                        <td id="stockLastPrice"></td>
+                      </tr>
+                      <tr>
+                        <th>Change(Change Percent)</th>
+                        <td id="stockCCP"></td>
+                      </tr>
+                      <tr>
+                        <th>Timestamp</th>
+                        <td id="stockTimestamp"></td>
+                      </tr>
+                      <tr>
+                        <th>Open</th>
+                        <td id="stockOpen"></td>
+                      </tr>
+                      <tr>
+                        <th>Previous Close</th>
+                        <td id="stockClose"></td>
+                      </tr>
+                      <tr>
+                        <th>Day's Range</th>
+                        <td id="stockRange"></td>
+                      </tr>
+                      <tr>
+                        <th>Volume</th>
+                        <td id="stockVolume"></td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+                <!-- high chart -->
+                <div class="col-sm-6">
+                  <div>
+                    <ul class="nav nav-tabs">
+                      <li class="nav-item">
+                        <a class="nav-link active" id="priceLink">Price</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="smaLink">SMA</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="emaLink">EMA</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="stochLink">STOCH</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="rsiLink">RSI</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="adxLink">ADX</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="cciLink">CCI</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="bbandsLink">BBANDS</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="macdLink">MACD</a>
+                      </li>
+                    </ul>
+                  </div>
+                  <!-- progress bar -->
+                  <div id="stockChartProgress" class="progress" style="margin-top: 31px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 50%"></div>
+                  </div>
+                  <!-- Error bar -->
+                  <div id="stockChartErrorDiv" style="margin-top: 31px;">
+                    <div id="stockChartError" style="color: #9D696B; background-color: #EBCFCD; height: 50px; border-radius: 4px; padding: 15px 15px; text-align: left;"><b>Error! Failed to get price data.</b></div>
+                  </div>
+                  <div id="container" style="height: 320px;"></div>
+                </div>
+              </div>
+              <!-- Hisrorical Chart div -->
+              <div class="row" id="historicalChartsDiv">
+                <div id="chartContainer" class="align-center" style="width: 90%;"></div>
+              </div>
+              <!-- news feed div -->
+              <div class="row" id="newsFeedDiv">
+                <div class="card" style="width: 100%; margin: 10px 5px; border-radius: 5px; background-color: #f9f9f9">
+                  <div id="news1" class="card-body align-left">
+                  </div>
+                </div>
+                <div class="card" style="width: 100%; margin: 10px 5px; border-radius: 5px; background-color: #f9f9f9">
+                  <div id="news2" class="card-body align-left">
+                  </div>
+                </div>
+                <div class="card" style="width: 100%; margin: 10px 5px; border-radius: 5px; background-color: #f9f9f9">
+                  <div id="news3" class="card-body align-left">
+                  </div>
+                </div>
+                <div class="card" style="width: 100%; margin: 10px 5px; border-radius: 5px; background-color: #f9f9f9">
+                  <div id="news4" class="card-body align-left">
+                  </div>
+                </div>
+                <div class="card" style="width: 100%; margin: 10px 5px; border-radius: 5px; background-color: #f9f9f9">
+                  <div id="news5" class="card-body align-left">
+                  </div>
+                </div>
+              </div>
+              <!-- progress bar -->
+              <div id="stockDetailProgress" class="progress" style="margin-top: 20px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 50%"></div>
+              </div>
+              <!-- Error bar -->
+              <div id="stockDetailErrorDiv" style="margin-top: 20px;">
+                <div id="stockDetailError" style="color: #9D696B; background-color: #EBCFCD; height: 50px; border-radius: 4px; padding: 15px 15px; text-align: left;"><b>Error! Failed to get historial charts data.</b></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script language = "javascript">
+    var symbol = "";
+    var favoriteList = []; // store symbol of stocks, e.g. AAPL, MSFT 
+    var autoRefresh = false;
+    var markitJson; // markitJson is an array
+    var priceJson;
+    var smaJson;
+    var emaJson;
+    var stochJson;
+    var rsiJson;
+    var adxJson;
+    var cciJson;
+    var bbandsJson;
+    var macdJson;
+    var newsJson;
+
+    var symbolName;
+    var TSDaily;
+    var today;
+    var yestoday;
+    var openPrice;
+    var closePrice;
+    var previousClose;
+    var change;
+    var changePercent;
+    var ccPercent; //Change(Change Percent)
+    var timestamp;
+    var high;
+    var low;
+    var range;
+    var volume;
+    var arrowSrc;
+    var arrowColor;
+    var firstDay; // six months ago
+    var month; // the month of first day
+    var day; // the day of first day
+    var priceArr = [];
+    var volumeArr = [];
+    var categories = [];
+    var allData = []; // data for high charts
+    var titleArr = [];
+    var linkArr = [];
+    var pubDate = [];
+    var author = [];
+    var smaArr = []; 
+    var emaArr = [];
+    var slowKArr = [];
+    var slowDArr = [];
+    var rsiArr = [];
+    var adxArr = [];
+    var cciArr = [];
+    var lowerArr = [];
+    var middleArr = [];
+    var upperArr = [];
+    var signalArr = [];
+    var histArr = [];
+    var macdArr = [];
+    var length; // price data length / how many days
+    var allStocks = "";
+    var sortValue;
+    var orderValue;
+    var myStocks = [];
+    var tableHtml = "";
+    var autoRefresh_interval;
+    
+    var myModule = angular.module('firstApplication', ['ngMaterial','ui.toggle'])
+    myModule.controller('autoCompleteController', autoCompleteController);
+
+    function autoCompleteController ($timeout, $q, $log) {
+      var self = this;
+      self.simulateQuery = false;
+      self.isDisabled    = false;
+      
+      // list of stocks to be displayed
+      // self.stocks        = loadStocks();
+      self.querySearch   = querySearch;
+      self.selectedItemChange = selectedItemChange;
+      self.searchTextChange   = searchTextChange;
+      self.newStock = newStock;
+      
+      function newStock(stock) {
+         alert("This functionality is yet to be implemented!");
+      }
+      
+      function querySearch (query) {
+        symbol = query;
+        $.ajax({
+          type: "GET",
+          async: false,
+          url: 'http://stock-application-184916.appspot.com/main.php',
+          data: ({markit:symbol}),
+          success: function(data) {
+            markitJson = JSON.parse(data);
+            var length = markitJson.length;
+            allStocks = "";
+            for(var i = 0; i < length; i++){
+              allStocks += markitJson[i].Symbol + " - " + markitJson[i].Name + " (" + markitJson[i].Exchange +"), ";
+            }
+            allStocks = allStocks.substring(0, allStocks.length - 2);
+            self.stocks = loadStocks();     
+          }  
+        });    
+
+        var results = query ? self.stocks.filter( createFilterFor(query) ) :
+        self.stocks, deferred;
+                   
+        if (self.simulateQuery) {
+          deferred = $q.defer();
+          $timeout(function () { deferred.resolve( results ); }, Math.random() * 1000, false);
+          return deferred.promise;
+        } else {
+          return results;
+        }       
+      }
+      
+      function searchTextChange(text) {
+         // $log.info('Text changed to ' + text);
+      }
+      
+      function selectedItemChange(item) {
+         // $log.info('Item changed to ' + JSON.stringify(item));
+         if(item !== "" && item !== undefined){
+          var stockDisplay = item.display;
+           var n = stockDisplay.search(" ");
+           symbol = stockDisplay.substring(0, n);
+           $("#symbolInput").val(symbol);
+         }
+      }
+      
+      //build list of stocks as map of key-value pairs
+      function loadStocks() {
+         // var allStocks = 'Alabama, Alaska, Arizona, Arkansas, California, Colorado, Connecticut, Delaware,\
+         //    Florida, Georgia, Hawaii, Idaho, Illinois, Indiana, Iowa, Kansas, Kentucky, Louisiana,\
+         //    Maine, Maryland, Massachusetts, Michigan, Minnesota, Mississippi, Missouri, Montana,\
+         //    Nebraska, Nevada, New Hampshire, New Jersey, New Mexico, New York, North Carolina,\
+         //    North Dakota, Ohio, Oklahoma, Oregon, Pennsylvania, Rhode Island, South Carolina,\
+         //    South Dakota, Tennessee, Texas, Utah, Vermont, Virginia, Washington, West Virginia,\
+         //    Wisconsin, Wyoming';
+            
+         return allStocks.split(/, +/g).map( function (stock) {
+            return {
+               value: stock.toLowerCase(),
+               display: stock
+            };
+         });
+      }
+      
+      //filter function for search query
+      function createFilterFor(query) {
+         var lowercaseQuery = angular.lowercase(query);
+         return function filterFn(stock) {
+            return (stock.value.indexOf(lowercaseQuery) === 0);
+         };
+      }
+    }
+
+    //second controller
+    myModule.controller('toggleController', toggleController);
+
+    function toggleController($scope){
+      $scope.toggleValue = false;
+
+      $scope.changed = function(){
+        // console.log("toggle: " + $scope.toggleValue);
+        autoRefresh = $scope.toggleValue;
+        if (autoRefresh === true) {
+          autoRefresh_interval = setInterval(function(){
+            updateFavorite();
+          }, 5000);
+        } else {
+          clearInterval(autoRefresh_interval);
+        }
+      };
+    }
+
+
+    function addMonths(date, months){
+      date.setMonth(date.getMonth() + months);
+      return date;
+    }
+
+    function myArrayMin(arr) {
+      var len = arr.length
+      var min = Infinity;
+      while (len--) {
+          if (arr[len] < min) {
+              min = arr[len];
+          }
+      }
+      return min;
+    }
+
+    function myArrayMax(arr) {
+      var len = arr.length
+      var max = -Infinity;
+      while (len--) {
+          if (arr[len] > max) {
+              max = arr[len];
+          }
+      }
+      return max;
+    }
+
+    $(document).ready(function(){
+      $("#symbolInput").focus(function(){
+          $("#md-content").css("borderColor", "#66afe9");
+      });
+      $("#symbolInput").blur(function(){
+        if (!symbol.replace(/\s/g, '').length) {
+          // string only contained whitespace (ie. spaces, tabs or line breaks)
+          $("#errorMessage").html("Please enter a stock ticker symbol.");
+          $("#md-content").css("border","2px solid red");
+        }else{
+          $("#errorMessage").html("");
+          $("#md-content").css("border","");
+          $('#getQuoteLink').prop('disabled', false);
+        }
+      });
+    });
+
+    function getQuote(){
+      // console.log("Clicked getQuote!");
+      symbol = symbol.toUpperCase();
+      $('#carouselList').carousel(1);
+      hideDetailDiv();
+      $("#stockDetailProgress").hide();
+      $("#currentStockDiv").show();
+      $("#stockDetailTable").hide();
+      $("#container").hide();
+      $("#stockTableErrorDiv").hide();
+      $("#stockChartErrorDiv").hide();
+      $("#stockDetailErrorDiv").hide();
+      $("#stockTableProgress").show();
+      $("#stockChartProgress").show();
+
+      removeDetailActive();
+      $("#currentStockLink").addClass("active");
+      $("#currentStockLink").css({"color": "white", "background-color": "#337ab7"});
+
+      removeChartActive();
+      $("#priceLink").addClass("active");
+      $("#priceLink").css("color","black");
+
+      $('#starBtn').prop('disabled', true);
+      $('#facebookBtn').prop('disabled', true);
+      $('#nextBtn').prop('disabled', true);
+      // get price data
+      $.ajax({
+        type: "GET",
+        url: 'http://stock-application-184916.appspot.com/main.php',
+        data: ({price:symbol}),
+        success: function(data) {
+          // data processing
+          if(JSON.parse(data)["Meta Data"] === undefined){
+            $("#stockTableProgress").hide();
+            $("#stockChartProgress").hide();
+            $("#stockTableErrorDiv").show();
+            $("#stockChartErrorDiv").show();  
+          }else{
+            priceJson = JSON.parse(data);
+            symbolName = priceJson["Meta Data"]["2. Symbol"];
+            today = priceJson["Meta Data"]["3. Last Refreshed"];
+            // make today have format yyyy-mm-dd
+            today = today.substring(0, 10);
+            TSDaily = priceJson["Time Series (Daily)"];
+            var count = 0;
+            for(x in TSDaily){
+              count++;
+              if(count === 2){
+                yestoday = x;
+                break;
+              }
+            }
+            openPrice = parseFloat(TSDaily[today]["1. open"]); 
+            closePrice = parseFloat(TSDaily[today]["4. close"]);
+            previousClose = parseFloat(TSDaily[yestoday]["4. close"]);
+            change = closePrice - previousClose;
+            changePercent = (change / previousClose) * 100;
+            low = parseFloat(TSDaily[today]["3. low"]);
+            low = low.toFixed(2);
+            high = parseFloat(TSDaily[today]["2. high"]);
+            high = high.toFixed(2);
+            range = low + "-" + high;
+            volume = parseInt(TSDaily[today]["5. volume"]);
+            openPrice = openPrice.toFixed(2);
+            closePrice = closePrice.toFixed(2);
+            previousClose = previousClose.toFixed(2);
+            timestamp = priceJson["Meta Data"]["3. Last Refreshed"].substring(0, 10);
+            if(change > 0){
+              arrowSrc = "http://cs-server.usc.edu:45678/hw/hw8/images/Up.png";
+              arrowColor = "green";
+            }else{
+              arrowSrc = "http://cs-server.usc.edu:45678/hw/hw8/images/Down.png";
+              arrowColor = "red";
+            }
+            change = change.toFixed(2);
+            changePercent = changePercent.toFixed(2);
+            ccPercent = change + " (" + changePercent + "%)";
+            // set the html stock table
+            $("#stockName").text(symbolName);
+            $("#stockLastPrice").text(closePrice);
+            var changeHtml = "<span style ='color: "+ arrowColor +";'>" + ccPercent + "</span><img style='width:15px;' src =" + arrowSrc + " >";
+            $("#stockCCP").html(changeHtml);
+            var ESTdate = moment(new Date()).tz("America/New_York").format("YYYY-MM-DD HH:mm:ss z");
+            var hour = parseInt(ESTdate.substring(11, 13));
+            if(hour >= 16 || (timestamp != ESTdate.substring(0, 10))){ //close today or not open today
+              ESTdate = timestamp + " 16:00:00" + ESTdate.substring(19, 23);
+            }
+            $("#stockTimestamp").text(ESTdate);
+            $("#stockOpen").text(openPrice);
+            $("#stockClose").text(previousClose);
+            $("#stockRange").text(range);
+            $("#stockVolume").text(volume.toLocaleString());
+            var starBtnHtml;
+            if(isFavorite(symbol)){
+              starBtnHtml = "<span class='glyphicon glyphicon-star' style='color: #f7cf20;'></span>";
+            }else{
+              starBtnHtml = "<span class='glyphicon glyphicon-star-empty'></span>";
+            }
+            $("#starBtn").html(starBtnHtml);
+            $("#stockDetailTable td").css("padding", "12px");
+            $("#stockDetailTable th").css("padding", "12px 8px");
+            // when all table data is loaded, hide progress bar and show table
+            $("#stockTableProgress").hide(); 
+            $("#stockDetailTable").show();
+            // when all table data is loaded, enable favorite button
+            $('#starBtn').prop('disabled', false);
+            // when a stock ticker was searched, enable next button
+            $('#nextBtn').prop('disabled', false);
+
+            firstDay = addMonths(new Date(), -6).toISOString().substring(0,10);
+            month = parseInt(firstDay.substring(5, 7));
+            day = parseInt(firstDay.substring(8, 10));
+            // clear the array data
+            priceArr = [];
+            volumeArr =[];
+            categories = [];
+            allData = [];
+            //var countDate = 0;
+            for(x in TSDaily) {
+              var m = parseInt(x.substring(5, 7));
+              var d = parseInt(x.substring(8, 10));
+              if(m <= month && d< day) {
+                break;
+              }
+              var myClose = parseFloat(TSDaily[x]["4. close"]);
+              //closePrice = closePrice.toFixed(2);
+              var myVolume = parseInt(TSDaily[x]["5. volume"]);
+              priceArr.unshift(myClose);
+              volumeArr.unshift(myVolume);
+              categories.unshift(x.substring(5, 10));
+            }
+            length = priceArr.length;
+            //draw Price Volume chart
+            displayPrice();
+            // when all table data is loaded, hide progress bar and show table
+            $("#stockChartProgress").hide();
+            $("#container").show();
+            // when all table data is loaded, enable share to facebook btn
+            $('#facebookBtn').prop('disabled', false);
+            // get data for historical charts
+            var i = 0;
+            for(x in TSDaily) {
+              if(i === 1000) {
+                break;
+              }
+              var myClose = parseFloat(TSDaily[x]["4. close"]);
+              var date = new Date(x);
+              var milliseconds = date.getTime();
+              var oneData = [milliseconds, myClose];
+              allData.unshift(oneData);
+              i++;
+            }
+          }
+        }
+      });
+      
+      // get SMA data
+      $.ajax({
+        type: "GET",
+        url: 'http://stock-application-184916.appspot.com/main.php',
+        data: ({sma:symbol}),
+        success: function(data) {
+          smaJson = JSON.parse(data);
+        }
+      });
+
+      //get EMA data
+      $.ajax({
+        type: "GET",
+        url: 'http://stock-application-184916.appspot.com/main.php',
+        data: ({ema:symbol}),
+        success: function(data) {
+          emaJson = JSON.parse(data);
+        }
+      });
+
+      // get STOCH data
+      $.ajax({
+        type: "GET",
+        url: 'http://stock-application-184916.appspot.com/main.php',
+        data: ({stoch:symbol}),
+        success: function(data) {
+          stochJson = JSON.parse(data);
+        }
+      });
+
+      // get RSI data
+      $.ajax({
+        type: "GET",
+        url: 'http://stock-application-184916.appspot.com/main.php',
+        data: ({rsi:symbol}),
+        success: function(data) {
+          rsiJson = JSON.parse(data);
+        }
+      });
+
+      // get ADX data
+      $.ajax({
+        type: "GET",
+        url: 'http://stock-application-184916.appspot.com/main.php',
+        data: ({adx:symbol}),
+        success: function(data) {
+          adxJson = JSON.parse(data);
+        }
+      });
+
+      // get CCI data
+      $.ajax({
+        type: "GET",
+        url: 'http://stock-application-184916.appspot.com/main.php',
+        data: ({cci:symbol}),
+        success: function(data) {
+          cciJson = JSON.parse(data);
+        }
+      });
+
+      // get BBANDS data
+      $.ajax({
+        type: "GET",
+        url: 'http://stock-application-184916.appspot.com/main.php',
+        data: ({bbands:symbol}),
+        success: function(data) {
+          bbandsJson = JSON.parse(data);
+        }
+      });
+
+      // get MACD data
+      $.ajax({
+        type: "GET",
+        url: 'http://stock-application-184916.appspot.com/main.php',
+        data: ({macd:symbol}),
+        success: function(data) {
+          macdJson = JSON.parse(data);
+        }
+      });
+
+      // get news data
+      $.ajax({
+        type: "GET",
+        url: 'http://stock-application-184916.appspot.com/main.php',
+        data: ({news:symbol}),
+        success: function(data) {
+          newsJson = JSON.parse(data);
+        }
+      });
+    }
+
+    $("#clearBtn").click(function(){
+      $("#symbolInput").val("");
+      symbol = "";
+      $("#nextBtn").prop("disabled",true);
+      $('#carouselList').carousel(0);
+      $("#errorMessage").html("");
+      $("#md-content").css("border","");
+      $('#getQuoteLink').prop('disabled', true);
+      markitJson = undefined;
+      priceJson = undefined;
+      smaJson = undefined;
+      emaJson = undefined;
+      stochJson = undefined;
+      rsiJson = undefined;
+      adxJson = undefined;
+      cciJson = undefined;
+      bbandsJson = undefined;
+      macdJson = undefined;
+      newsJson = undefined;
+    });
+
+
+    $("#currentStockLink").click(function(){
+      removeDetailActive();
+      $(this).addClass("active");
+      $(this).css({"color": "white", "background-color": "#337ab7"});
+      hideDetailDiv();
+      //big div
+      $("#stockDetailProgress").hide();
+      $("#stockDetailErrorDiv").hide();
+      $("#currentStockDiv").show();
+      //small div
+      if(priceJson === undefined ||priceJson["Meta Data"] === undefined){
+        $("#stockDetailTable").hide();
+        $("#container").hide();
+        $("#stockTableErrorDiv").show();
+        $("#stockChartErrorDiv").show();
+      }else{
+        $("#stockTableErrorDiv").hide();
+        $("#stockChartErrorDiv").hide();
+        $("#stockDetailTable").show();
+        $("#container").show();
+      }
+    });
+
+    $("#historicalChartsLink").click(function(){
+      removeDetailActive();
+      $(this).addClass("active");
+      $(this).css({"color": "white", "background-color": "#337ab7"});
+      hideDetailDiv();
+      $("#historicalChartsDiv").hide();
+      $("#stockDetailErrorDiv").hide();
+      $("#stockDetailProgress").show();
+      if(priceJson === undefined ||priceJson["Meta Data"] === undefined){
+        $("#stockDetailProgress").hide();
+        $("#stockDetailError").html("<b>Error! Failed to get historial charts data.</b>");
+        $("#stockDetailErrorDiv").show();
+      }else{
+        window.dispatchEvent(new Event('resize'));
+        //after data loaded
+        drawHistoricalChart();
+        $("#stockDetailProgress").hide();
+        $("#historicalChartsDiv").show();
+      }
+    });
+
+    $("#newsFeedLink").click(function(){
+      removeDetailActive();
+      $(this).addClass("active");
+      $(this).css({"color": "white", "background-color": "#337ab7"});
+      hideDetailDiv();
+      $("#newsFeedDiv").hide();
+      $("#stockDetailErrorDiv").hide();
+      $("#stockDetailError").html("<b>Error! Failed to get news feeds data.</b>");
+      $("#stockDetailProgress").show();
+      if(newsJson === undefined){
+        $("#stockDetailProgress").hide();
+        $("#stockDetailErrorDiv").show();
+      }else{
+        // get data for news
+        titleArr = newsJson[0];
+        linkArr = newsJson[1];
+        authorArr = newsJson[2];
+        pubDateArr = newsJson[3];
+        // format publish date format
+        for(var i = 0; i < pubDateArr.length; i++){
+          pubDateArr[i][0] = moment(pubDateArr[i][0]).tz("America/New_York").format("ddd, DD MMM YYYY HH:mm:ss z");
+        }
+        //set news
+        for(var i = 0; i < 5; i++){
+          var newshtml = "<a href = " + linkArr[i][0] + " class = 'card-link' target = '_blank'><h4 class = 'card-title'>" + titleArr[i][0] + "</h4></a><br>";
+          newshtml += "<p class = 'card-text'><b>Author: " + authorArr[i][0] + "</b></p>";
+          newshtml += "<p class = 'card-text'><b>Date: " + pubDateArr[i][0] + "</b></p>";
+          $("#news" + (i+1)).html(newshtml);
+        }
+        // after data loaded
+        $("#stockDetailProgress").hide();
+        $("#newsFeedDiv").show();
+      }
+    });
+
+    $("#priceLink").click(function(){
+      removeChartActive();
+      $(this).addClass("active");
+      $(this).css("color", "black");
+      if(priceJson === undefined || priceJson["Meta Data"] === undefined){
+        $("#container").hide();
+        $("#stockChartProgress").hide();
+        $("#stockChartError").html("<b>Error! Failed to get price data.</b>");
+        $("#stockChartErrorDiv").show();
+      }else{
+        $("#stockChartErrorDiv").hide();
+        $("#stockChartProgress").hide();
+        $("#container").show();
+        displayPrice();
+      }
+    });
+
+    $("#smaLink").click(function(){
+      removeChartActive();
+      $(this).addClass("active");
+      $(this).css("color", "black");
+      if(smaJson === undefined || smaJson["Technical Analysis: SMA"] === undefined){
+        $("#container").hide();
+        $("#stockChartProgress").hide();
+        $("#stockChartError").html("<b>Error! Failed to get SMA data.</b>");
+        $("#stockChartErrorDiv").show();
+      }else{
+        $("#stockChartErrorDiv").hide();
+        $("#stockChartProgress").hide();
+        $("#container").show();
+        var smaTA = smaJson["Technical Analysis: SMA"];
+        var i = 0;
+        for (x in smaTA) {
+          if(i === length){
+            break;
+          }
+          smaArr.unshift(parseFloat(smaTA[x].SMA));
+          i++; 
+        }
+        displaySMA();
+      }
+    });
+
+    $("#emaLink").click(function(){
+      removeChartActive();
+      $(this).addClass("active");
+      $(this).css("color", "black");
+      if(emaJson === undefined || emaJson["Technical Analysis: EMA"] === undefined){
+        $("#container").hide();
+        $("#stockChartProgress").hide();
+        $("#stockChartError").html("<b>Error! Failed to get EMA data.</b>");
+        $("#stockChartErrorDiv").show();
+      }else{
+        $("#stockChartErrorDiv").hide();
+        $("#stockChartProgress").hide();
+        $("#container").show();
+        var emaTA = emaJson["Technical Analysis: EMA"];
+        var i = 0;
+        for (x in emaTA) {
+          if(i === length){
+            break;
+          }
+          emaArr.unshift(parseFloat(emaTA[x].EMA));
+          i++; 
+        }
+        displayEMA();
+      }
+    });
+
+    $("#stochLink").click(function(){
+      removeChartActive();
+      $(this).addClass("active");
+      $(this).css("color", "black");
+      if(stochJson === undefined || stochJson["Technical Analysis: STOCH"] === undefined){
+        $("#container").hide();
+        $("#stockChartProgress").hide();
+        $("#stockChartError").html("<b>Error! Failed to get STOCH data.</b>");
+        $("#stockChartErrorDiv").show();
+      }else{
+        $("#stockChartErrorDiv").hide();
+        $("#stockChartProgress").hide();
+        $("#container").show();
+        var stochTA = stochJson["Technical Analysis: STOCH"];
+        var i = 0;
+        for (x in stochTA) {
+          if(i === length){
+            break;
+          }
+          slowKArr.unshift(parseFloat(stochTA[x].SlowK));
+          slowDArr.unshift(parseFloat(stochTA[x].SlowD));
+          i++; 
+        }
+        displaySTOCH();
+      }
+    });
+
+    $("#rsiLink").click(function(){
+      removeChartActive();
+      $(this).addClass("active");
+      $(this).css("color", "black");
+      if(rsiJson === undefined || rsiJson["Technical Analysis: RSI"] === undefined){
+        $("#container").hide();
+        $("#stockChartProgress").hide();
+        $("#stockChartError").html("<b>Error! Failed to get RSI data.</b>");
+        $("#stockChartErrorDiv").show();
+      }else{
+        $("#stockChartErrorDiv").hide();
+        $("#stockChartProgress").hide();
+        $("#container").show();
+        var rsiTA = rsiJson["Technical Analysis: RSI"];
+        var i = 0;
+        for (x in rsiTA) {
+          if(i === length){
+            break;
+          }
+          rsiArr.unshift(parseFloat(rsiTA[x].RSI));
+          i++; 
+        }
+        displayRSI();
+      }
+    });
+
+    $("#adxLink").click(function(){
+      removeChartActive();
+      $(this).addClass("active");
+      $(this).css("color", "black");
+      if(adxJson === undefined || adxJson["Technical Analysis: ADX"] === undefined){
+        $("#container").hide();
+        $("#stockChartProgress").hide();
+        $("#stockChartError").html("<b>Error! Failed to get ADX data.</b>");
+        $("#stockChartErrorDiv").show();
+      }else{
+        $("#stockChartErrorDiv").hide();
+        $("#stockChartProgress").hide();
+        $("#container").show();
+        var adxTA = adxJson["Technical Analysis: ADX"];
+        var i = 0;
+        for (x in adxTA) {
+          if(i === length){
+            break;
+          }
+          adxArr.unshift(parseFloat(adxTA[x].ADX));
+          i++; 
+        }
+        displayADX();
+      }
+    });
+
+    $("#cciLink").click(function(){
+      removeChartActive();
+      $(this).addClass("active");
+      $(this).css("color", "black");
+      if(cciJson === undefined|| cciJson["Technical Analysis: CCI"] === undefined){
+        $("#container").hide();
+        $("#stockChartProgress").hide();
+        $("#stockChartError").html("<b>Error! Failed to get CCI data.</b>");
+        $("#stockChartErrorDiv").show();
+      }else{
+        $("#stockChartErrorDiv").hide();
+        $("#stockChartProgress").hide();
+        $("#container").show();
+        var cciTA = cciJson["Technical Analysis: CCI"];
+        var i = 0;
+        for (x in cciTA) {
+          if(i === length){
+            break;
+          }
+          cciArr.unshift(parseFloat(cciTA[x].CCI));
+          i++; 
+        }
+        displayCCI();
+      }
+    });
+
+    $("#bbandsLink").click(function(){
+      removeChartActive();
+      $(this).addClass("active");
+      $(this).css("color", "black");
+      if(bbandsJson === undefined|| bbandsJson["Technical Analysis: BBANDS"] === undefined){
+        $("#container").hide();
+        $("#stockChartProgress").hide();
+        $("#stockChartError").html("<b>Error! Failed to get BBANDS data.</b>");
+        $("#stockChartErrorDiv").show();
+      }else{
+        $("#stockChartErrorDiv").hide();
+        $("#stockChartProgress").hide();
+        $("#container").show();
+        var bbandsTA = bbandsJson["Technical Analysis: BBANDS"];
+        var i = 0;
+        for (x in bbandsTA) {
+          if(i === length){
+            break;
+          }
+          lowerArr.unshift(parseFloat(bbandsTA[x]["Real Lower Band"]));
+          middleArr.unshift(parseFloat(bbandsTA[x]["Real Middle Band"]));
+          upperArr.unshift(parseFloat(bbandsTA[x]["Real Upper Band"]));
+          i++; 
+        }
+        displayBBANDS();
+      }
+    });
+
+    $("#macdLink").click(function(){
+      removeChartActive();
+      $(this).addClass("active");
+      $(this).css("color", "black");
+      if(macdJson === undefined ||macdJson["Technical Analysis: MACD"] === undefined){
+        $("#container").hide();
+        $("#stockChartProgress").hide();
+        $("#stockChartError").html("<b>Error! Failed to get MACD data.</b>");
+        $("#stockChartErrorDiv").show();
+      }else{
+        $("#stockChartErrorDiv").hide();
+        $("#stockChartProgress").hide();
+        $("#container").show();
+        var macdTA = macdJson["Technical Analysis: MACD"];
+        var i = 0;
+        for (x in macdTA) {
+          if(i === length){
+            break;
+          }
+          signalArr.unshift(parseFloat(macdTA[x].MACD_Signal));
+          histArr.unshift(parseFloat(macdTA[x].MACD_Hist));
+          macdArr.unshift(parseFloat(macdTA[x].MACD));
+          i++; 
+        }
+        displayMACD();
+      }   
+    });
+
+    function removeDetailActive(){
+      $("#currentStockLink").removeClass("active");
+      $("#historicalChartsLink").removeClass("active");
+      $("#newsFeedLink").removeClass("active");
+      $("#currentStockLink").css({"color": "#337ab7", "background-color": "white"});
+      $("#historicalChartsLink").css({"color": "#337ab7", "background-color": "white"});
+      $("#newsFeedLink").css({"color": "#337ab7", "background-color": "white"});
+    }
+
+    function hideDetailDiv(){
+      $("#currentStockDiv").hide();
+      $("#historicalChartsDiv").hide();
+      $("#newsFeedDiv").hide();
+    }
+
+    function removeChartActive(){
+      //remove class
+      $("#priceLink").removeClass("active");
+      $("#smaLink").removeClass("active");
+      $("#emaLink").removeClass("active");
+      $("#stochLink").removeClass("active");
+      $("#rsiLink").removeClass("active");
+      $("#adxLink").removeClass("active");
+      $("#cciLink").removeClass("active");
+      $("#bbandsLink").removeClass("active");
+      $("#macdLink").removeClass("active");
+      //change color
+      $("#priceLink").css("color","#337ab7");
+      $("#smaLink").css("color","#337ab7");
+      $("#emaLink").css("color","#337ab7");
+      $("#stochLink").css("color","#337ab7");
+      $("#rsiLink").css("color","#337ab7");
+      $("#adxLink").css("color","#337ab7");
+      $("#cciLink").css("color","#337ab7");
+      $("#bbandsLink").css("color","#337ab7");
+      $("#macdLink").css("color","#337ab7");
+    }
+
+    function displayPrice(){
+      var maxPrice = myArrayMax(priceArr);
+      var maxVolume = myArrayMax(volumeArr);
+      // Now create the chart
+      $('#container').highcharts({
+        chart: {
+          borderColor: '#c2c2c2',
+          borderWidth: 1,
+          type: 'line',
+          zoomType: 'x'
+        },
+        title:{
+          text:symbolName + " Stock Price and Volume"
+        },
+        subtitle:{
+          useHTML:true,
+          text:"<a href='https://www.alphavantage.co/' target = '_blank'>Source: Alpha Vantage</a>"
+        },
+        exporting: {
+          url: 'http://export.highcharts.com/'
+        },
+        yAxis:[
+          {
+            title:{
+              text:"Stock Price"
+            },
+            labels:{
+              format:"{value:,.2f}"
+            },
+            min:0,
+            max:maxPrice
+          },
+          {
+            title:{
+              text:"Volume"
+            },
+            opposite:true,
+            min:0,
+            max:maxVolume
+          }
+        ],
+        xAxis:{
+          categories:categories,
+          tickInterval:5,
+          tickPositioner: function() {
+            let res = [];
+            for(let i = 0; i < this.categories.length; i++) {
+                if(i % 10 == 0) res.push(this.categories.length - 1 - i);
+            }
+            return res;
+          }
+        },
+        series:[
+          {
+            type:"area",
+            name:"Price",
+            data:priceArr,
+            threshold:null,
+            yAxis:0,
+            tooltip:{
+              pointFormat:symbolName + ": {point.y:,..2f}"
+            },
+            lineColor: "blue",
+            color:"#e0d9f7",
+            marker:{
+              enabled:false
+            }
+          },
+          {
+            type:"column",
+            name:" Volume",
+            data:volumeArr,
+            yAxis:1,
+            tooltip:{
+              pointFormat:symbolName + ": {point.y:,..2f}"
+            },
+            color:"red",
+            
+          }
+        ]
+      });
+    }
+
+    function drawHistoricalChart(){
+      $('#chartContainer').highcharts('StockChart', {
+        rangeSelector : {
+          buttons: [
+            {type: 'week',
+              count: 1,
+              text: '1w'
+            }, {
+              type: 'month',
+              count: 1,
+              text: '1m'
+            }, {
+              type: 'month',
+              count: 3,
+              text: '3m'
+            }, {
+              type: 'month',
+              count: 6,
+              text: '6m'
+            }, {
+              type: 'ytd',
+              text: 'YTD'
+            }, {
+              type: 'year',
+              count: 1,
+              text: '1y'
+            }, {
+              type: 'all',
+              text: 'All'
+          }],
+          selected : 0,
+        },
+
+        tooltip: {
+            split: false,
+        },
+
+        title: {
+            text: symbolName + ' Stock Price'
+        },
+
+        subtitle:{
+          useHTML:true,
+          text:"<a href='https://www.alphavantage.co/' target = '_blank'>Source: Alpha Vantage</a>"
+        },
+
+        exporting: {
+          url: 'http://export.highcharts.com/'
+        },
+
+        yAxis:{
+          title:{
+            text:"Stock Value"
+          }
+        },
+
+        series: [{
+          name: 'AAPL',
+          data: allData,
+          type: 'area',
+          threshold: null,
+          tooltip: {
+              valueDecimals: 2
+          },
+          fillColor: {
+            linearGradient: {
+                x1: 0,
+                y1: 0,
+                x2: 0,
+                y2: 1
+            },
+            stops: [
+                [0, Highcharts.getOptions().colors[0]],
+                [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+            ]
+          }
+        }]
+      });
+    }
+
+    function displaySMA(){
+      var minSMA = myArrayMin(smaArr);
+      var maxSMA = myArrayMax(smaArr);
+      $('#container').highcharts({
+        chart: {
+          borderColor: '#c2c2c2',
+          borderWidth: 1,
+          type: 'line',
+          zoomType: 'x'
+        },
+        title:{
+          text:"Simple Moving Average (SMA)"
+        },
+        subtitle:{
+          useHTML:true,
+          text:"<a href='https://www.alphavantage.co/' target = '_blank'>Source: Alpha Vantage</a>"
+        },
+        exporting: {
+          url: 'http://export.highcharts.com/'
+        },
+        yAxis:{
+          title:{
+            text:"SMA"
+          },
+          min:minSMA,
+          max:maxSMA
+        },
+        xAxis:{
+          categories:categories,
+          tickInterval:5,
+          tickPositioner: function() {
+            let res = [];
+            for(let i = 0; i < this.categories.length; i++) {
+                if(i % 5 == 0) res.push(this.categories.length - 1 - i);
+            }
+            return res;
+          }
+        },
+        series:[
+          {
+            name:symbolName,
+            data:smaArr,
+            tooltip:{
+              pointFormat:symbolName + ": {point.y:,..2f}"
+            },
+            color:"#f37f81",
+            lineWidth: 1,
+            marker:{
+              radius: 2
+            }
+          }
+        ]
+      });
+    }
+
+    function displayEMA(){
+      var minEMA = myArrayMin(emaArr);
+      var maxEMA = myArrayMax(emaArr);
+      $('#container').highcharts({
+        chart: {
+          borderColor: '#c2c2c2',
+          borderWidth: 1,
+          type: 'line',
+          zoomType: 'x'
+        },
+        title:{
+          text:"Exponential Moving Average (EMA)"
+        },
+        subtitle:{
+          useHTML:true,
+          text:"<a href='https://www.alphavantage.co/' target = '_blank'>Source: Alpha Vantage</a>"
+        },
+        exporting: {
+          url: 'http://export.highcharts.com/'
+        },
+        yAxis:{
+          title:{
+            text:"EMA"
+          },
+          min:minEMA,
+          max:maxEMA
+        },
+        xAxis:{
+          categories:categories,
+          tickInterval:5,
+          tickPositioner: function() {
+            let res = [];
+            for(let i = 0; i < this.categories.length; i++) {
+                if(i % 5 == 0) res.push(this.categories.length - 1 - i);
+            }
+            return res;
+          }
+        },
+        series:[
+          {
+            name:symbolName,
+            data:emaArr,
+            tooltip:{
+              pointFormat:symbolName + ": {point.y:,..2f}"
+            },
+            color:"#f37f81",
+            lineWidth: 1,
+            marker:{
+              radius: 2
+            }
+          }
+        ]
+      });
+    }
+
+    function displaySTOCH(){
+      var minSlowK = myArrayMin(slowKArr);
+      var maxSlowK = myArrayMax(slowKArr);
+      var minSlowD = myArrayMin(slowDArr);
+      var maxSlowD = myArrayMax(slowDArr);
+      var minS = [minSlowK, minSlowD];
+      var maxS = [maxSlowK, maxSlowD];
+      var minSTOCH = myArrayMin(minS);
+      var maxSTOCH = myArrayMax(maxS);
+      $('#container').highcharts({
+        chart: {
+          borderColor: '#c2c2c2',
+          borderWidth: 1,
+          type: 'line',
+          zoomType: 'x'
+        },
+        title:{
+          text:"Stochastic Oscillator (STOCH)"
+        },
+        subtitle:{
+          useHTML:true,
+          text:"<a href='https://www.alphavantage.co/' target = '_blank'>Source: Alpha Vantage</a>"
+        },
+        exporting: {
+          url: 'http://export.highcharts.com/'
+        },
+        yAxis:{
+          title:{
+            text:"STOCH"
+          },
+          min:minSTOCH,
+          max:maxSTOCH
+        },
+        xAxis:{
+          categories:categories,
+          tickInterval:5,
+          tickPositioner: function() {
+            let res = [];
+            for(let i = 0; i < this.categories.length; i++) {
+                if(i % 5 == 0) res.push(this.categories.length - 1 - i);
+            }
+            return res;
+          }
+        },
+        series:[
+          {
+            name:symbolName + " SlowK",
+            data:slowKArr,
+            tooltip:{
+              pointFormat:symbolName + ": {point.y:,..2f}"
+            },
+            lineWidth: 1,
+            marker:{
+              radius: 2
+            }
+          },
+          {
+            name:symbolName + " SlowD",
+            data:slowDArr,
+            tooltip:{
+              pointFormat:symbolName + ": {point.y:,..2f}"
+            },
+            lineWidth: 1,
+            marker:{
+              radius: 2
+            }
+          }
+        ]
+      });
+    }
+
+    function displayRSI(){
+      var minRSI = myArrayMin(rsiArr);
+      var maxRSI = myArrayMax(rsiArr);
+      $('#container').highcharts({
+        chart: {
+          borderColor: '#c2c2c2',
+          borderWidth: 1,
+          type: 'line',
+          zoomType: 'x'
+        },
+        title:{
+          text:"Relative Strength Index (RSI)"
+        },
+        subtitle:{
+          useHTML:true,
+          text:"<a href='https://www.alphavantage.co/' target = '_blank'>Source: Alpha Vantage</a>"
+        },
+        exporting: {
+          url: 'http://export.highcharts.com/'
+        },
+        yAxis:{
+          title:{
+            text:"RSI"
+          },
+          min:minRSI,
+          max:maxRSI
+        },
+        xAxis:{
+          categories:categories,
+          tickInterval:5,
+          tickPositioner: function() {
+            let res = [];
+            for(let i = 0; i < this.categories.length; i++) {
+                if(i % 5 == 0) res.push(this.categories.length - 1 - i);
+            }
+            return res;
+          }
+        },
+        series:[
+          {
+            name:symbolName,
+            data:rsiArr,
+            tooltip:{
+              pointFormat:symbolName + ": {point.y:,..2f}"
+            },
+            color:"#f37f81",
+            lineWidth: 1,
+            marker:{
+              radius: 2
+            }
+          }
+        ]
+      });
+    }
+
+    function displayADX(){
+      var minADX = myArrayMin(adxArr);
+      var maxADX = myArrayMax(adxArr);
+      $('#container').highcharts({
+        chart: {
+          borderColor: '#c2c2c2',
+          borderWidth: 1,
+          type: 'line',
+          zoomType: 'x'
+        },
+        title:{
+          text:"Average Directional movement indeX (ADX)"
+        },
+        subtitle:{
+          useHTML:true,
+          text:"<a href='https://www.alphavantage.co/' target = '_blank'>Source: Alpha Vantage</a>"
+        },
+        exporting: {
+          url: 'http://export.highcharts.com/'
+        },
+        yAxis:{
+          title:{
+            text:"ADX"
+          },
+          min:minADX,
+          max:maxADX
+        },
+        xAxis:{
+          categories:categories,
+          tickInterval:5,
+          tickPositioner: function() {
+            let res = [];
+            for(let i = 0; i < this.categories.length; i++) {
+                if(i % 5 == 0) res.push(this.categories.length - 1 - i);
+            }
+            return res;
+          }
+        },
+        series:[
+          {
+            name:symbolName,
+            data:adxArr,
+            tooltip:{
+              pointFormat:symbolName + ": {point.y:,..2f}"
+            },
+            color:"#f37f81",
+            lineWidth: 1,
+            marker:{
+              radius: 2
+            }
+          }
+        ]
+      });
+    }
+
+    function displayCCI(){
+      var minCCI = myArrayMin(cciArr);
+      var maxCCI = myArrayMax(cciArr);
+      $('#container').highcharts({
+        chart: {
+          borderColor: '#c2c2c2',
+          borderWidth: 1,
+          type: 'line',
+          zoomType: 'x'
+        },
+        title:{
+          text:"Commodity Channel Index (CCI)"
+        },
+        subtitle:{
+          useHTML:true,
+          text:"<a href='https://www.alphavantage.co/' target = '_blank'>Source: Alpha Vantage</a>"
+        },
+        exporting: {
+          url: 'http://export.highcharts.com/'
+        },
+        yAxis:{
+          title:{
+            text:"CCI"
+          },
+          min:minCCI,
+          max:maxCCI
+        },
+        xAxis:{
+          categories:categories,
+          tickInterval:5,
+          tickPositioner: function() {
+            let res = [];
+            for(let i = 0; i < this.categories.length; i++) {
+                if(i % 5 == 0) res.push(this.categories.length - 1 - i);
+            }
+            return res;
+          }
+        },
+        series:[
+          {
+            name:symbolName,
+            data:cciArr,
+            tooltip:{
+              pointFormat:symbolName + ": {point.y:,..2f}"
+            },
+            color:"#f37f81",
+            lineWidth: 1,
+            marker:{
+              radius: 2
+            }
+          }
+        ]
+      });
+    }
+
+    function displayBBANDS(){
+      var maxUpper = myArrayMax(upperArr);
+      var minLower = myArrayMin(lowerArr);
+      var minBBANDS = minLower;
+      var maxBBANDS = maxUpper;
+      $('#container').highcharts({
+        chart: {
+          borderColor: '#c2c2c2',
+          borderWidth: 1,
+          type: 'line',
+          zoomType: 'x'
+        },
+        title:{
+          text:"Bollinger Bands (BBANDS)"
+        },
+        subtitle:{
+          useHTML:true,
+          text:"<a href='https://www.alphavantage.co/' target = '_blank'>Source: Alpha Vantage</a>"
+        },
+        exporting: {
+          url: 'http://export.highcharts.com/'
+        },
+        yAxis:{
+          title:{
+            text:"BBANDS"
+          },
+          min:minBBANDS,
+          max:maxBBANDS
+        },
+        xAxis:{
+          categories:categories,
+          tickInterval:5,
+          tickPositioner: function() {
+            let res = [];
+            for(let i = 0; i < this.categories.length; i++) {
+                if(i % 5 == 0) res.push(this.categories.length - 1 - i);
+            }
+            return res;
+          }
+        },
+        series:[
+          {
+            name:symbolName + " Real Middle Band",
+            data:middleArr,
+            tooltip:{
+              pointFormat:symbolName + ": {point.y:,..2f}"
+            },
+            lineWidth: 1,
+            marker:{
+              radius: 2
+            }
+          },
+          {
+            name:symbolName + " Real Upper Band",
+            data:upperArr,
+            tooltip:{
+              pointFormat:symbolName + ": {point.y:,..2f}"
+            },
+            lineWidth: 1,
+            marker:{
+              radius: 2
+            }
+          },
+          {
+            name:symbolName + " Real Lower Band",
+            data:lowerArr,
+            tooltip:{
+              pointFormat:symbolName + ": {point.y:,..2f}"
+            },
+            lineWidth: 1,
+            marker:{
+              radius: 2
+            }
+          }
+        ]
+      });
+    }
+
+    function displayMACD(){
+      var minSignal = myArrayMin(signalArr);
+      var maxSignal = myArrayMax(signalArr);
+      var minHist = myArrayMin(histArr);
+      var maxHist = myArrayMax(histArr);
+      var minMacd = myArrayMin(macdArr);
+      var maxMacd = myArrayMax(macdArr);
+      var minM = [minSignal, minHist, minMacd];
+      var maxM = [maxSignal, maxHist, maxMacd];
+      var minMACD = myArrayMin(minM);
+      var maxMACD = myArrayMax(maxM);
+      $('#container').highcharts({
+        chart: {
+          borderColor: '#c2c2c2',
+          borderWidth: 1,
+          type: 'line',
+          zoomType: 'x'
+        },
+        title:{
+          text:"Moving Average Convergence/Divergence (MACD)"
+        },
+        subtitle:{
+          useHTML:true,
+          text:"<a href='https://www.alphavantage.co/' target = '_blank'>Source: Alpha Vantage</a>"
+        },
+        exporting: {
+          url: 'http://export.highcharts.com/'
+        },
+        yAxis:{
+          title:{
+            text:"MACD"
+          },
+          min:minMACD,
+          max:maxMACD
+        },
+        xAxis:{
+          categories:categories,
+          tickInterval:5,
+          tickPositioner: function() {
+            let res = [];
+            for(let i = 0; i < this.categories.length; i++) {
+                if(i % 5 == 0) res.push(this.categories.length - 1 - i);
+            }
+            return res;
+          }
+        },
+        series:[
+          {
+            name:symbolName + " MACD_Signal",
+            data:signalArr,
+            tooltip:{
+              pointFormat:symbolName + ": {point.y:,..2f}"
+            },
+            lineWidth: 1,
+            marker:{
+              radius: 2
+            }
+          },
+          {
+            name:symbolName + " MACD_Hist",
+            data:histArr,
+            tooltip:{
+              pointFormat:symbolName + ": {point.y:,..2f}"
+            },
+            lineWidth: 1,
+            marker:{
+              radius: 2
+            }
+          },
+          {
+            name:symbolName + " MACD",
+            data:macdArr,
+            tooltip:{
+              pointFormat:symbolName + ": {point.y:,..2f}"
+            },
+            lineWidth: 1,
+            marker:{
+              radius: 2
+            }
+          }
+        ]
+      });
+    }
+
+    $("#starBtn").click(function(){
+      if (isFavorite(symbol)) {
+        removeFavorite(symbol);
+      } else {
+        addFavorite(symbol);
+      }
+    });
+
+    $("#facebookBtn").click(function(){
+      // request highchart link from server
+      var options = $("#container").highcharts().options;
+
+      var obj = {},
+      exportUrl = options.exporting.url;
+      obj.options = JSON.stringify(options);
+      obj.type = 'image/png';
+      obj.async = true;
+
+      $.ajax({
+          type: 'post',
+          url: exportUrl,
+          data: obj,
+          success: function (data) {
+            var picUrl = exportUrl + data;
+            //console.log(picUrl);
+            FB.ui({
+              method: 'feed',
+              link: picUrl,
+              caption: 'An example caption'
+            }, function(response){
+              if (response) {
+                alert('Posted Successfully');
+              } else {
+                alert('Not Posted');
+              }
+            });
+          }
+      });
+
+    });
+
+    function isFavorite(stock){
+      if(favoriteList === null || favoriteList.indexOf(stock) === -1){
+        return false;
+      }else{
+        return true;
+      }
+    }
+
+    function addFavorite(){
+      // console.log("Add to favoriteList!");
+      // set the empty star to yellow star
+      var starBtnHtml = "<span class='glyphicon glyphicon-star' style='color: #f7cf20;'></span>";
+      $("#starBtn").html(starBtnHtml);
+
+      if (favoriteList === null) {
+        favoriteList = [symbol.toUpperCase()];
+      } else {
+        favoriteList.push(symbol.toUpperCase());
+      }
+      localStorage.setItem('favorites', JSON.stringify(favoriteList));
+      // Add this one element
+      var html = "";
+      html += "<tr id ='favrow-" + symbol + "'>";
+      html += "<td><a href='#' onClick = clickFavoriteSymbol(\'" + symbol + "\')>" + symbol + "</a></td>";
+      html += "<td id ='closePrice-" + symbol + "'>" + closePrice + "</td>";
+      html += "<td id ='ccPercent-" + symbol + "'><span style ='color: "+ arrowColor +";'>" + ccPercent + "</span><img style='width:15px;' src =" + arrowSrc + " ></td>";
+      html += "<td id ='volume-" + symbol + "'>" + volume.toLocaleString() + "</td>";
+      html += "<td><button type='button' class='btn btn-default gray-gradient' onClick = removeFavorite(\'" + symbol + "\')><span class='glyphicon glyphicon-trash'></span></button></td>";
+      html += "</tr>";
+      // add it after the last row
+      $('#favoriteTable').append(html);
+      var myNewStock = {name: symbol, price: parseFloat(closePrice), change: parseFloat(change), percent: parseFloat(changePercent), volume: parseInt(volume)};
+      myStocks.push(myNewStock);
+    }
+
+    function removeFavorite(s){
+      // console.log("Remove from favoriteList!");
+      // set the yellow star to empty star
+      var starBtnHtml = "<span class='glyphicon glyphicon-star-empty'></span>";
+      $("#starBtn").html(starBtnHtml);
+      var index = favoriteList.indexOf(s);
+      favoriteList.splice(index, 1);
+      //update local storage
+      localStorage.setItem('favorites', JSON.stringify(favoriteList));
+      $('#favrow-' + s).remove();
+    }
+
+    // navigation to detail chart
+    function clickFavoriteSymbol(s){
+      symbol = s;
+      // Enable display button
+      $('#nextBtn').prop('disabled', false);
+      // Update data and show the current stock info page
+      getQuote();// show stock details
+      // $('#carouselList').carousel(1);
+    }
+
+    // write html in favorite table, and fill data in it
+    function updateFavorite(){
+      // console.log("Refresh!");
+      favoriteList = JSON.parse(localStorage.getItem('favorites'));
+      for(var i = 0; i < favoriteList.length; i++){
+        symbol = favoriteList[i];
+        // console.log(symbol);
+        $.ajax({
+          type: "GET",
+          url: 'http://stock-application-184916.appspot.com/main.php',
+          data: ({price:symbol}),
+          success: function(data) {
+            priceJson = JSON.parse(data);
+            // data processing
+            symbolName = priceJson["Meta Data"]["2. Symbol"];
+            today = priceJson["Meta Data"]["3. Last Refreshed"];
+            // make today have format yyyy-mm-dd
+            today = today.substring(0, 10);
+            TSDaily = priceJson["Time Series (Daily)"];
+            var count = 0;
+            for(x in TSDaily){
+              count++;
+              if(count === 2){
+                yestoday = x;
+                break;
+              }
+            }
+            closePrice = parseFloat(TSDaily[today]["4. close"]);
+            previousClose = parseFloat(TSDaily[yestoday]["4. close"]);
+            change = closePrice - previousClose;
+            changePercent = (change / previousClose) * 100;
+            volume = parseInt(TSDaily[today]["5. volume"]);
+            volume = volume;
+            closePrice = closePrice.toFixed(2);
+            previousClose = previousClose.toFixed(2);
+            timestamp = priceJson["Meta Data"]["3. Last Refreshed"].substring(0, 10);
+            if(change > 0){
+              arrowSrc = "http://cs-server.usc.edu:45678/hw/hw8/images/Up.png";
+              arrowColor = "green";
+            }else{
+              arrowSrc = "http://cs-server.usc.edu:45678/hw/hw8/images/Down.png";
+              arrowColor = "red";
+            }
+            change = change.toFixed(2);
+            changePercent = changePercent.toFixed(2);
+            ccPercent = change + " (" + changePercent + "%)";
+            // console.log(symbolName + ": " + closePrice);
+            // console.log(symbolName + ": " + ccPercent);
+            // console.log(symbolName + ": " + volume);
+
+            $('#closePrice-' + symbolName).html(closePrice);
+            $('#ccPercent-' + symbolName).html("<span style ='color: "+ arrowColor +";'>" + ccPercent + "</span><img style='width:15px;' src =" + arrowSrc + " >");
+            $('#volume-' + symbolName).html(volume.toLocaleString());
+          }
+        });
+      }
+    }
+
+    function sortBySelect(){
+      sortValue = $("#sortBySelect").val();
+      if(sortValue !== "Default"){
+        $('#orderSelect').prop('disabled', false);
+      }else{
+        $('#orderSelect').prop('disabled', true);
+      }
+      sortStock();
+    }
+
+    function orderSelect(){
+      orderValue = $("#orderSelect").val();
+      sortStock();
+    }
+
+    function sortStock(){
+      // console.log("sort!");
+      if(sortValue != "Default"){
+        // sort by Symbol
+        if(sortValue == "Symbol"){
+          favoriteList.sort();
+        }else if(sortValue == "Price"){ // sort by Price
+          myStocks.sort(function(a, b){return a.price - b.price});
+          favoriteList = getFavoriteList();
+        }else if(sortValue == "Change"){
+          myStocks.sort(function(a, b){return a.change - b.change});
+          favoriteList = getFavoriteList();
+        }else if(sortValue == "Change Percent"){
+          myStocks.sort(function(a, b){return a.percent - b.percent});
+          favoriteList = getFavoriteList();
+        }else if(sortValue == "Volume"){
+          myStocks.sort(function(a, b){return a.volume - b.volume});
+          favoriteList = getFavoriteList();
+        }
+        if(orderValue == "Descending"){
+          favoriteList.reverse();
+        }
+        //update favoriteList
+        localStorage.setItem('favorites', JSON.stringify(favoriteList));
+        adjustOrder();
+      }
+    }
+
+    function getFavoriteList(){
+      var result = [];
+      for(var i = 0; i < favoriteList.length; i++){
+        result.push(myStocks[i].name);
+      }
+      return result;
+    }
+
+    function adjustOrder(){
+      var newTableHtml = "<tr><th scope='row'>Symbol</th><th>Stock Price</th><th>Change(Change Percent)</th><th>Volume</th><th></th></tr>";
+      for(var i = 0; i < favoriteList.length; i++){
+        var rowid = "favrow-" + favoriteList[i];
+        var tdHTML = document.getElementById(rowid).innerHTML;
+        var rowHTML = "<tr id ='" + rowid + "'>" + tdHTML + "</tr>";
+        newTableHtml += rowHTML;
+      }
+      $("#favoriteTable").html(newTableHtml);
+    }
+
+  </script>
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,95 @@
+body {
+  background-image: url('http://cs-server.usc.edu:45678/hw/hw8/images/background.png');
+  background-size: 100% auto;
+  background-attachment: fixed;
+  padding: 8px;
+}
+
+@media only screen and (min-width:200px) and (max-width:760px)
+{
+    .mobile-align-left {
+        text-align: left;
+        float: left;
+        clear: left;
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+    .hide-mobile {
+        display: none;
+        visibility: hidden;
+    }
+}
+
+h3{
+  font-size: 20px;
+  text-align: center;
+}
+
+#starSign{
+  color: red;
+}
+
+.padding-12{
+  padding: 12px;
+}
+
+.gray-gradient {
+    background: #EBEBEB;
+    background: linear-gradient(#F6F6F6, #E8E8E8);
+}
+
+.align-center {
+    text-align: center;
+    margin: 0 auto;
+}
+
+.align-left {
+    text-align: left;
+    float: left;
+    clear: left;
+}
+
+.align-right {
+    text-align: right;
+    float: right;
+    clear: right;
+}
+
+.no-margin {
+    margin: 0px;
+}
+
+.no-padding {
+    padding: 0px;
+}
+
+.no-bottom {
+    margin-bottom: 0px;
+    padding-bottom: 0px;
+}
+
+#carouselList {
+  padding: 15px; 
+  border: 1px solid gray-gradient; 
+  background-color: white; 
+  border-radius: 10px;
+}
+
+#facebookImg{
+  width: 24px;
+  height: 24px;
+}
+
+#facebookBtn{
+  padding:4px 7px;
+}
+
+.example-form {
+  min-width: 150px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.example-full-width {
+  width: 100%;
+}
