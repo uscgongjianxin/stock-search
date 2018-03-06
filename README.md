@@ -7,6 +7,11 @@ Stock Search using Alpha Vantage & Facebook Mashup
 * Utilized Facebook API to allow users to log in and post a stock highchart to feed
 * Deployed back-end to GCP and deployed front-end to USC CS Server
 
+### Search Page
+Format: ![search page](https://github.com/uscgongjianxin/stock-search/blob/master/search_page.png)
+
+### Detail Page
+Format: ![details page](https://github.com/uscgongjianxin/stock-search/blob/master/details_page.png)
+
 [web link](http://cs-server.usc.edu:34325/hw8.html)
 
-See details in hw_8 description.
