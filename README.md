@@ -14,4 +14,5 @@ Format: ![search page](https://github.com/uscgongjianxin/stock-search/blob/maste
 Format: ![details page](https://github.com/uscgongjianxin/stock-search/blob/master/details_page.png)
 
 This is the [link](http://cs-server.usc.edu:34325/hw8.html) of the web.
-*PS. Since the API created by TA is changed, some of the features are not showing.
+
+PS. Since the API created by TA is changed, some of the features are not showing.
